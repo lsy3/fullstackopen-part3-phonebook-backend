@@ -1,78 +1,110 @@
 const express = require('express')
 const app = express()
+const cors = require('cors')
+const morgan = require('morgan')
 
-let notes = [
+const MAX_ID = 10000
+
+let persons = [
   {
-    id: 1,
-    content: "HTML is easy",
-    date: "2022-01-10T17:30:31.098Z",
-    important: true
+    "id": 1,
+    "name": "Arto Hellas",
+    "number": "040-123456"
   },
   {
-    id: 2,
-    content: "Browser can execute only Javascript",
-    date: "2022-01-10T18:39:34.091Z",
-    important: false
+    "id": 2,
+    "name": "Ada Lovelace",
+    "number": "39-44-5323523"
   },
   {
-    id: 3,
-    content: "GET and POST are the most important methods of HTTP protocol",
-    date: "2022-01-10T19:20:14.298Z",
-    important: true
+    "id": 3,
+    "name": "Dan Abramov",
+    "number": "12-43-234345"
+  },
+  {
+    "id": 4,
+    "name": "Mary Poppendieck",
+    "number": "39-23-6423122"
   }
 ]
 
+morgan.token('postdata', function getPostData(req) {
+  let ret = ' '
+  if (req['_body']) {
+    ret = JSON.stringify(req['body'])
+  }
+  return ret
+})
+
 app.use(express.json())
+app.use(cors())
+// app.use(morgan('tiny'))
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :postdata'))
 
 app.get('/', (req, res) => {
   res.send('<h1>Hello World!</h1>')
 })
 
+app.get('/info', (req, res) => {
+  res.send(`Phonebook has info for ${persons.length} people<br\>${new Date()}`)
+})
+
 const generateId = () => {
-  const maxId = notes.length > 0
-    ? Math.max(...notes.map(n => n.id))
-    : 0
-  return maxId + 1
+  return Math.floor(Math.random() * MAX_ID);
 }
 
-app.post('/api/notes', (request, response) => {
+app.post('/api/persons', (request, response) => {
   const body = request.body
 
-  if (!body.content) {
-    return response.status(400).json({ 
-      error: 'content missing' 
+  missing = [];
+  if (!body.name) {
+    missing.push('name')
+  }
+  if (!body.number) {
+    missing.push('number')
+  }
+  if (missing.length > 0) {
+    return response.status(400).json({
+      error: `missing: ${missing.join(', ')}`
     })
   }
 
-  const note = {
-    content: body.content,
-    important: body.important || false,
-    date: new Date(),
-    id: generateId(),
+  const existP = persons.find(p => p.name === body.name)
+
+  if (existP) {
+    return response.status(400).json({
+      error: 'name must be unique'
+    })
+  } else {
+    const p = {
+      name: body.name,
+      number: body.number,
+      id: generateId(),
+    }
+
+    persons = persons.concat(p)
+
+    response.json(p)
   }
-
-  notes = notes.concat(note)
-
-  response.json(note)
 })
 
-app.get('/api/notes', (req, res) => {
-  res.json(notes)
+app.get('/api/persons', (req, res) => {
+  res.json(persons)
 })
 
-app.delete('/api/notes/:id', (request, response) => {
+app.delete('/api/persons/:id', (request, response) => {
   const id = Number(request.params.id)
-  notes = notes.filter(note => note.id !== id)
+  persons = persons.filter(p => p.id !== id)
 
   response.status(204).end()
 })
 
-app.get('/api/notes/:id', (request, response) => {
+app.get('/api/persons/:id', (request, response) => {
   const id = Number(request.params.id)
-  const note = notes.find(note => note.id === id)
+  const p = persons.find(p => p.id === id)
 
-  if (note) {
-    response.json(note)
+  if (p) {
+    response.json(p)
   } else {
     response.status(404).end()
   }
