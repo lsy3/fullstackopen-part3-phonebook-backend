@@ -5,31 +5,6 @@ const cors = require('cors')
 const morgan = require('morgan')
 const Person = require('./models/person')
 
-const MAX_ID = 10000
-
-// let persons = [
-//   {
-//     "id": 1,
-//     "name": "Arto Hellas",
-//     "number": "040-123456"
-//   },
-//   {
-//     "id": 2,
-//     "name": "Ada Lovelace",
-//     "number": "39-44-5323523"
-//   },
-//   {
-//     "id": 3,
-//     "name": "Dan Abramov",
-//     "number": "12-43-234345"
-//   },
-//   {
-//     "id": 4,
-//     "name": "Mary Poppendieck",
-//     "number": "39-23-6423122"
-//   }
-// ]
-
 app.use(express.static('build'))
 app.use(express.json())
 app.use(cors())
@@ -53,7 +28,7 @@ app.get('/', (req, res) => {
 app.get('/info', (req, res) => {
   Person.find({})
     .then(results => {
-      res.send(`Phonebook has info for ${results.length} people<br\>${new Date()}`)
+      res.send(`Phonebook has info for ${results.length} people<br\\>${new Date()}`)
     })
 
 })
@@ -94,7 +69,7 @@ app.post('/api/persons', (request, response, next) => {
         p.save().then(savedP => {
           response.json(savedP)
         })
-        .catch(error => next(error))
+          .catch(error => next(error))
       }
     })
 })
@@ -107,7 +82,7 @@ app.get('/api/persons', (req, res) => {
 
 app.delete('/api/persons/:id', (request, response, next) => {
   Person.findByIdAndRemove(request.params.id)
-    .then(result => {
+    .then(() => {
       response.status(204).end()
     })
     .catch(error => next(error))

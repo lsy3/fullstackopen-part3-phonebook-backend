@@ -15,26 +15,26 @@ const personSchema = new mongoose.Schema({
 
 const Person = mongoose.model('Person', personSchema)
 
-if (process.argv.length == 3) {
+if (process.argv.length === 3) {
   mongoose
     .connect(url)
-    .then((result) => {
+    .then(() => {
       console.log('connected')
 
       return Person.find({})
     })
     .then((result) => {
-        console.log('phonebook:')
-        result.forEach(p => {
-          console.log(`${p.name} ${p.number}`)
-        })
+      console.log('phonebook:')
+      result.forEach(p => {
+        console.log(`${p.name} ${p.number}`)
+      })
       mongoose.connection.close()
     })
     .catch((err) => console.log(err))
 } else {
   mongoose
     .connect(url)
-    .then((result) => {
+    .then(() => {
       console.log('connected')
 
       const p = new Person({
