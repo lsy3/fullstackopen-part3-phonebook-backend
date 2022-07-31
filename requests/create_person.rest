@@ -36,10 +36,10 @@ GET http://localhost:3001/api/persons
 
 ###
 
-PUT http://localhost:3001/api/persons/62e5c92f3d05e99917773759
+PUT http://localhost:3001/api/persons/62e6309e754598188c772579
 content-type: application/json
 
 {
   "name": "Liam Sy 3",
-  "number": "12345641241"
+  "number": "2312311"
 }
